@@ -52,13 +52,13 @@ As we continue to grow, our commitment to quality and service remains unwavering
 **Customer Support**
 For inquiries about orders, products, or account-related issues, contact our customer support team:
 - **Email:** support@example.com
-- **Phone:** +1 (123) 456-7890
+- **Phone:** +1 (240)587-4652
 - **Live Chat:** Available on our website from 9 AM to 6 PM (Monday to Friday).
 
 **Head Office**
 For corporate or business-related inquiries, reach out to our headquarters:
 - **Address:** 1234 E-Commerce St, Suite 567, Business City, BC 12345
-- **Phone:** +1 (987) 654-3210
+- **Phone:** +1 (240)587-4652
 
 We look forward to assisting you! Your satisfaction is our priority.
 `,
@@ -105,7 +105,7 @@ We strive to ensure all product descriptions, pricing, and availability informat
 
 If you have questions or concerns, please reach out to us through our multiple contact options:
 - **Email:** support@example.com
-- **Phone:** +1 (123) 456-7890
+- **Phone:** +1 (240) 587-4652
 - **Live Chat:** Available on our website for instant assistance
 
 We also provide helpful resources such as order tracking, product guides, and FAQs to assist you with common inquiries. Your satisfaction is our priority, and we’re here to resolve any issues quickly and efficiently. Thank you for choosing us!`,

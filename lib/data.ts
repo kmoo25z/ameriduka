@@ -6,7 +6,7 @@ import { i18n } from '@/i18n-config'
 const users: IUserInput[] = [
   {
     name: 'John',
-    email: 'admin@example.com',
+    email: 'kongata@ameriduka.us',
     password: bcrypt.hashSync('123456', 5),
     role: 'Admin',
     address: {
@@ -1082,7 +1082,7 @@ As we continue to grow, our commitment to quality and service remains unwavering
 **Customer Support**
 For inquiries about orders, products, or account-related issues, contact our customer support team:
 - **Email:** support@example.com
-- **Phone:** +1 (123) 456-7890
+- **Phone:** +1 (240) 587-4652
 - **Live Chat:** Available on our website from 9 AM to 6 PM (Monday to Friday).
 
 **Head Office**
@@ -1135,7 +1135,7 @@ We strive to ensure all product descriptions, pricing, and availability informat
 
 If you have questions or concerns, please reach out to us through our multiple contact options:
 - **Email:** support@example.com
-- **Phone:** +1 (123) 456-7890
+- **Phone:** +1 (240) 587-4652
 - **Live Chat:** Available on our website for instant assistance
 
 We also provide helpful resources such as order tracking, product guides, and FAQs to assist you with common inquiries. Your satisfaction is our priority, and we’re here to resolve any issues quickly and efficiently. Thank you for choosing us!`,
@@ -1240,6 +1240,13 @@ We also provide helpful resources such as order tracking, product guides, and FA
       url: '/search?category=Wrist Watches',
       isPublished: true,
     },
+    {
+      title: 'Best Deals on Electronics',
+      buttonCaption: 'See More',
+      image: '/images/banner2.jpg',
+      url: '/search?category=Electronics',
+      isPublished: true,
+    },
   ],
   settings: [
     {
@@ -1251,18 +1258,18 @@ We also provide helpful resources such as order tracking, product guides, and FA
         pageSize: 9,
       },
       site: {
-        name: 'NxtAmzn',
+        name: 'Ameriduka',
         description:
-          'NxtAmzn is a sample Ecommerce website built with Next.js, Tailwind CSS, and MongoDB.',
+          'Ameriduka is a sample Ecommerce website built with Next.js, Tailwind CSS, and MongoDB.',
         keywords: 'Next Ecommerce, Next.js, Tailwind CSS, MongoDB',
         url: 'https://next-mongo-ecommerce-final.vercel.app',
         logo: '/icons/logo.svg',
         slogan: 'Spend less, enjoy more.',
-        author: 'Next Ecommerce',
-        copyright: '2000-2024, Next-Ecommerce.com, Inc. or its affiliates',
-        email: 'admin@example.com',
-        address: '123, Main Street, Anytown, CA, Zip 12345',
-        phone: '+1 (123) 456-7890',
+        author: 'Ameriduka',
+        copyright: '2000-2024, Ameriduka.com, Inc. or its affiliates',
+        email: 'kongata@ameriduka.us',
+        address: 'Minnesota, USA',
+        phone: '+1 (240) 587-4652',
       },
       carousels: [
         {
@@ -1282,6 +1289,12 @@ We also provide helpful resources such as order tracking, product guides, and FA
           buttonCaption: 'See More',
           image: '/images/banner2.jpg',
           url: '/search?category=Wrist Watches',
+        },
+        {
+          title: 'Best Deals on Electronics',
+          buttonCaption: 'See More',
+          image: '/images/banner2.jpg',
+          url: '/search?category=Electronics',
         },
       ],
       availableLanguages: i18n.locales.map((locale) => ({
