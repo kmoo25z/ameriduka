@@ -149,6 +149,9 @@ class ProductBase(BaseModel):
     warranty_months: int = 12
     featured: bool = False
     tags: List[str] = []
+    # Product variations
+    variations: List[Dict[str, Any]] = []  # [{ram: "8GB", storage: "256GB", color: "Black", price_usd: 1199, stock: 10}]
+    has_variations: bool = False
 
 class ProductCreate(ProductBase):
     pass
@@ -160,6 +163,53 @@ class ProductResponse(ProductBase):
     review_count: int = 0
     sold_count: int = 0
     created_at: datetime
+    variations: List[Dict[str, Any]] = []
+    has_variations: bool = False
+
+# Wishlist Models
+class WishlistItem(BaseModel):
+    product_id: str
+
+class WishlistResponse(BaseModel):
+    items: List[Dict[str, Any]]
+    count: int
+
+# Address Models
+class AddressCreate(BaseModel):
+    label: str = "Home"  # Home, Work, Other
+    full_name: str
+    phone: str
+    address_line1: str
+    address_line2: Optional[str] = None
+    city: str
+    country: str = "Kenya"
+    postal_code: Optional[str] = None
+    is_default: bool = False
+
+class AddressResponse(AddressCreate):
+    model_config = ConfigDict(extra="ignore")
+    address_id: str
+    user_id: str
+
+# Support Ticket Models
+class TicketCreate(BaseModel):
+    subject: str
+    message: str
+    order_id: Optional[str] = None
+    category: str = "general"  # general, order, payment, refund, technical
+
+class TicketResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    ticket_id: str
+    user_id: str
+    subject: str
+    message: str
+    order_id: Optional[str] = None
+    category: str
+    status: str  # open, in_progress, resolved, closed
+    created_at: datetime
+    updated_at: datetime
+    messages: List[Dict[str, Any]] = []
     
 class ProductListResponse(BaseModel):
     products: List[ProductResponse]
