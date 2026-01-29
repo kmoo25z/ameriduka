@@ -80,6 +80,48 @@ const ProductDetail = () => {
     }
   };
 
+  const handleWishlist = async () => {
+    if (!user) {
+      toast.error("Please login to add to wishlist");
+      return;
+    }
+    try {
+      if (inWishlist) {
+        await authAxios.delete(`/wishlist/${product.product_id}`);
+        setInWishlist(false);
+        toast.success("Removed from wishlist");
+      } else {
+        await authAxios.post("/wishlist/add", { product_id: product.product_id });
+        setInWishlist(true);
+        toast.success("Added to wishlist!");
+      }
+    } catch (error) {
+      toast.error("Failed to update wishlist");
+    }
+  };
+
+  const handleCompare = () => {
+    const newList = compareList.includes(productId) 
+      ? compareList.filter(id => id !== productId)
+      : [...compareList, productId].slice(-4); // Max 4 products
+    setCompareList(newList);
+    localStorage.setItem("compareList", JSON.stringify(newList));
+    
+    if (newList.includes(productId)) {
+      toast.success("Added to compare list");
+    } else {
+      toast.success("Removed from compare list");
+    }
+  };
+
+  const goToCompare = () => {
+    if (compareList.length >= 2) {
+      navigate(`/compare?ids=${compareList.join(",")}`);
+    } else {
+      toast.error("Add at least 2 products to compare");
+    }
+  };
+
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (!user) {
