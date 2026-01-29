@@ -174,6 +174,7 @@ function AppRouter() {
       <Route path="/" element={<Landing />} />
       <Route path="/products" element={<Products />} />
       <Route path="/products/:productId" element={<ProductDetail />} />
+      <Route path="/compare" element={<Compare />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       
@@ -196,6 +197,21 @@ function AppRouter() {
       <Route path="/orders/:orderId" element={
         <ProtectedRoute>
           <OrderDetail />
+        </ProtectedRoute>
+      } />
+      <Route path="/wishlist" element={
+        <ProtectedRoute>
+          <Wishlist />
+        </ProtectedRoute>
+      } />
+      <Route path="/addresses" element={
+        <ProtectedRoute>
+          <Addresses />
+        </ProtectedRoute>
+      } />
+      <Route path="/support" element={
+        <ProtectedRoute>
+          <SupportTickets />
         </ProtectedRoute>
       } />
       
