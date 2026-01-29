@@ -1,15 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../App";
+import { useAuth } from "../../App";
 import { ShoppingCart, User, Menu, X, Search, LogOut, Package, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
-import { Button } from "../components/ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
