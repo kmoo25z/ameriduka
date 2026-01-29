@@ -239,14 +239,14 @@ const Products = () => {
                 <div>
                   <label className="text-sm text-neutral-400 mb-2 block">Category</label>
                   <Select
-                    value={filters.category}
-                    onValueChange={(val) => handleFilterChange("category", val)}
+                    value={filters.category || "all"}
+                    onValueChange={(val) => handleFilterChange("category", val === "all" ? "" : val)}
                   >
                     <SelectTrigger className="bg-card border-neutral-800" data-testid="filter-category">
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-neutral-800">
-                      <SelectItem value="">All Categories</SelectItem>
+                      <SelectItem value="all">All Categories</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat.category} value={cat.category}>
                           {cat.category} ({cat.count})
