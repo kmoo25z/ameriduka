@@ -221,6 +221,7 @@ class ProductListResponse(BaseModel):
 class CartItem(BaseModel):
     product_id: str
     quantity: int = 1
+    variation_id: Optional[str] = None  # For products with variations
 
 class CartResponse(BaseModel):
     items: List[Dict[str, Any]]
