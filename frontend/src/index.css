@@ -115,7 +115,7 @@
     
     /* Product Card */
     .product-card {
-        @apply bg-card border border-neutral-800 rounded-2xl p-4 transition-all duration-300 group relative overflow-hidden;
+        @apply bg-card border border-neutral-800 rounded-2xl p-4 transition-all duration-300 relative overflow-hidden;
     }
     
     .product-card:hover {
