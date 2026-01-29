@@ -1,0 +1,144 @@
+{
+  "identity": {
+    "name": "E1 - Obsidian Glass",
+    "description": "A high-contrast, premium tech aesthetic that merges deep obsidian backgrounds with electric neon accents and glassmorphism. Designed for the Kenyan market with a global, futuristic edge.",
+    "principles": [
+      "Fusion over Imitation: Mix 'Apple Store' minimalism with 'Cyberpunk' vibrancy.",
+      "Emotion First: Evoke 'Precision' and 'Speed'.",
+      "Content is King: Products are the heroes; UI recedes into the dark.",
+      "Zoom In: Macro photography for product details.",
+      "Negative Space: Luxurious black voids to create focus."
+    ]
+  },
+  "typography": {
+    "headings": {
+      "family": "Outfit, sans-serif",
+      "weights": ["400", "600", "800"],
+      "usage": "Use for all H1-H6. Tracking tight (-0.02em).",
+      "import_url": "https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap"
+    },
+    "body": {
+      "family": "Plus Jakarta Sans, sans-serif",
+      "weights": ["400", "500", "700"],
+      "usage": "Use for paragraphs, UI text, and data.",
+      "import_url": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "default": "#050505",
+        "paper": "#09090b",
+        "subtle": "#121212"
+      },
+      "primary": {
+        "main": "#6366f1",
+        "light": "#818cf8",
+        "dark": "#4338ca",
+        "contrast": "#ffffff"
+      },
+      "secondary": {
+        "main": "#06b6d4",
+        "light": "#22d3ee",
+        "dark": "#0891b2",
+        "contrast": "#000000"
+      },
+      "neutral": {
+        "50": "#f8fafc",
+        "100": "#f1f5f9",
+        "200": "#e2e8f0",
+        "300": "#cbd5e1",
+        "400": "#94a3b8",
+        "500": "#64748b",
+        "600": "#475569",
+        "700": "#334155",
+        "800": "#1e293b",
+        "900": "#0f172a",
+        "950": "#020617"
+      },
+      "status": {
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "error": "#ef4444",
+        "info": "#3b82f6"
+      }
+    },
+    "usage_rules": [
+      "Backgrounds: Always use #050505 for the main page background.",
+      "Cards: Use #09090b with a 1px border of #27272a (Zinc 800).",
+      "Text: Headings in #f8fafc, Body in #94a3b8. NEVER use pure white (#ffffff) for body text.",
+      "Accents: Use Neon Indigo (#6366f1) for primary CTAs. Use Electric Cyan (#06b6d4) for tech highlights/glows."
+    ]
+  },
+  "layout": {
+    "spacing_scale": "Tailwind default, but prioritize p-8, p-12, p-16 for section gaps.",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "grids": {
+      "marketing": "The 'Tetris' Grid: grid-cols-1 md:grid-cols-12 gap-8. Mix col-span-8 (Hero) with col-span-4 (Detail).",
+      "dashboard": "High Density Grid: grid-cols-1 md:grid-cols-4 gap-4. Use col-span-full for main charts."
+    },
+    "border_radius": {
+      "outer": "rounded-2xl",
+      "inner": "rounded-xl",
+      "button": "rounded-full"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary-main hover:bg-primary-light text-white rounded-full px-8 py-3 font-semibold transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]",
+      "secondary": "bg-transparent border border-neutral-700 text-neutral-200 hover:border-neutral-500 rounded-full px-8 py-3 transition-all",
+      "ghost": "text-neutral-400 hover:text-white transition-colors"
+    },
+    "cards": {
+      "style": "bg-background-paper border border-neutral-800 rounded-2xl p-6 hover:border-primary-main/50 transition-colors group relative overflow-hidden",
+      "effect": "Add a subtle radial gradient glow on hover."
+    },
+    "inputs": {
+      "style": "bg-neutral-900/50 border border-neutral-800 rounded-lg px-4 py-3 text-neutral-200 focus:border-primary-main focus:ring-1 focus:ring-primary-main outline-none transition-all placeholder:text-neutral-600"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-black/40 border border-white/10",
+    "gradients": "Use subtle mesh gradients in the background: 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary-900/20 via-background to-background'",
+    "shadows": {
+      "glow": "0 0 40px -10px rgba(99, 102, 241, 0.3)",
+      "card": "0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3)"
+    },
+    "textures": "Add a subtle noise texture overlay at 2% opacity to reduce banding."
+  },
+  "media": {
+    "image_urls": {
+      "hero_product": "https://images.unsplash.com/photo-1759588071836-fcfca86e43de?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "laptop_showcase": "https://images.unsplash.com/photo-1752391873033-839ff56ff6c6?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "user_persona": "https://images.unsplash.com/photo-1739301674132-8521915d153b?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "tech_lifestyle": "https://images.unsplash.com/photo-1769594362058-d561f024a235?crop=entropy&cs=srgb&fm=jpg&q=85"
+    },
+    "icons": "Use 'lucide-react' for all UI icons. Stroke width: 1.5px."
+  },
+  "motion": {
+    "transitions": "transition-all duration-300 ease-out",
+    "hover_lift": "hover:-translate-y-1",
+    "page_load": "animate-in fade-in slide-in-from-bottom-4 duration-700"
+  },
+  "accessibility": {
+    "contrast": "Ensure text is at least Slate-400 on dark backgrounds.",
+    "focus": "Visible focus rings using the Primary color.",
+    "reduced_motion": "Respect prefers-reduced-motion media query."
+  },
+  "instructions_to_main_agent": [
+    "1. SETUP: Install 'lucide-react' and 'clsx' 'tailwind-merge' if not present.",
+    "2. THEME: Configure tailwind.config.js to use the specific colors defined above. Extend the theme, do not overwrite.",
+    "3. FONTS: Add the Google Fonts imports to index.css.",
+    "4. LAYOUT: Build the 'Tetris Grid' for the Landing Page Hero section.",
+    "5. DASHBOARD: Use the 'High Density Grid' for the Admin Dashboard.",
+    "6. COMPONENTS: Create a reusable 'GlassCard' component that implements the glassmorphism styles.",
+    "7. IMAGES: Use the provided Unsplash URLs for placeholders. Do not use gray boxes.",
+    "8. CRITICAL: Ensure the 'Dark Mode' is the DEFAULT and ONLY mode for this version (as per 'Obsidian Glass' theme)."
+  ],
+  "universal_guidelines": [
+    "Avoid 'AI Slop': No generic centered layouts. Use asymmetry.",
+    "Dark Mode Mastery: Avoid pure black (#000000) for cards; use #09090b.",
+    "Micro-Interactions: Every button must have a hover state (scale, glow, or color shift).",
+    "Data-TestID: Add data-testid to all interactive elements."
+  ]
+}
