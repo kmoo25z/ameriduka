@@ -89,6 +89,24 @@ export const Navbar = () => {
                         My Orders
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/wishlist" className="flex items-center gap-2 cursor-pointer" data-testid="nav-wishlist">
+                        <Heart className="h-4 w-4" />
+                        Wishlist
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/addresses" className="flex items-center gap-2 cursor-pointer" data-testid="nav-addresses">
+                        <MapPin className="h-4 w-4" />
+                        My Addresses
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/support" className="flex items-center gap-2 cursor-pointer" data-testid="nav-support">
+                        <MessageCircle className="h-4 w-4" />
+                        Support
+                      </Link>
+                    </DropdownMenuItem>
                     {isAdmin && (
                       <DropdownMenuItem asChild>
                         <Link to="/admin" className="flex items-center gap-2 cursor-pointer" data-testid="nav-admin">
