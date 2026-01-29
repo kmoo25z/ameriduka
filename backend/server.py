@@ -954,7 +954,7 @@ async def get_stripe_status(session_id: str, user: Dict = Depends(get_current_us
                 }}
             )
             
-            # Update sold count for products
+            # Update sold count for products and add loyalty points
             order = await db.orders.find_one({"order_id": txn["order_id"]})
             if order:
                 for item in order["items"]:
@@ -962,6 +962,22 @@ async def get_stripe_status(session_id: str, user: Dict = Depends(get_current_us
                         {"product_id": item["product_id"]},
                         {"$inc": {"sold_count": item["quantity"]}}
                     )
+                
+                # Add loyalty points (1 point per $1 spent)
+                points_earned = int(order["total_usd"])
+                await db.users.update_one(
+                    {"user_id": order["user_id"]},
+                    {"$inc": {"loyalty_points": points_earned}}
+                )
+                await db.loyalty_transactions.insert_one({
+                    "transaction_id": f"loyalty_{uuid.uuid4().hex[:12]}",
+                    "user_id": order["user_id"],
+                    "type": "earn",
+                    "points": points_earned,
+                    "order_id": order["order_id"],
+                    "description": f"Earned {points_earned} points from order {order['order_id']}",
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                })
     
     return CheckoutStatusResponse(
         status=status.status,
