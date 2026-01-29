@@ -260,14 +260,14 @@ const Products = () => {
                 <div>
                   <label className="text-sm text-neutral-400 mb-2 block">Brand</label>
                   <Select
-                    value={filters.brand}
-                    onValueChange={(val) => handleFilterChange("brand", val)}
+                    value={filters.brand || "all"}
+                    onValueChange={(val) => handleFilterChange("brand", val === "all" ? "" : val)}
                   >
                     <SelectTrigger className="bg-card border-neutral-800" data-testid="filter-brand">
                       <SelectValue placeholder="All Brands" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-neutral-800">
-                      <SelectItem value="">All Brands</SelectItem>
+                      <SelectItem value="all">All Brands</SelectItem>
                       {brands.map((b) => (
                         <SelectItem key={b.brand} value={b.brand}>
                           {b.brand} ({b.count})
@@ -281,14 +281,14 @@ const Products = () => {
                 <div>
                   <label className="text-sm text-neutral-400 mb-2 block">Condition</label>
                   <Select
-                    value={filters.condition}
-                    onValueChange={(val) => handleFilterChange("condition", val)}
+                    value={filters.condition || "all"}
+                    onValueChange={(val) => handleFilterChange("condition", val === "all" ? "" : val)}
                   >
                     <SelectTrigger className="bg-card border-neutral-800" data-testid="filter-condition">
                       <SelectValue placeholder="All Conditions" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-neutral-800">
-                      <SelectItem value="">All Conditions</SelectItem>
+                      <SelectItem value="all">All Conditions</SelectItem>
                       <SelectItem value="new">New</SelectItem>
                       <SelectItem value="refurbished">Refurbished</SelectItem>
                       <SelectItem value="used">Used</SelectItem>
