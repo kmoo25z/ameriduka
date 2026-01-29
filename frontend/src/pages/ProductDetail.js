@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API, useAuth } from "../App";
 import { Navbar, Footer } from "../components/shared/Layout";
 import ProductCard from "../components/shared/ProductCard";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
-import { Star, ShoppingCart, Heart, Truck, Shield, RefreshCw, ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
+import { Star, ShoppingCart, Heart, Truck, Shield, RefreshCw, ChevronLeft, ChevronRight, Minus, Plus, Scale, FileText } from "lucide-react";
 
 const ProductDetail = () => {
   const { productId } = useParams();
+  const navigate = useNavigate();
   const { user, authAxios } = useAuth();
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -20,11 +21,21 @@ const ProductDetail = () => {
   const [currency, setCurrency] = useState("KES");
   const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false);
+  const [compareList, setCompareList] = useState([]);
 
   const exchangeRates = { USD: 1, KES: 129.5, EUR: 0.92 };
   const rate = exchangeRates[currency] || 1;
   const currencySymbols = { USD: "$", KES: "KES ", EUR: "€" };
   const symbol = currencySymbols[currency] || "$";
+
+  useEffect(() => {
+    // Load compare list from localStorage
+    const stored = localStorage.getItem("compareList");
+    if (stored) {
+      setCompareList(JSON.parse(stored));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +49,14 @@ const ProductDetail = () => {
         setProduct(productRes.data);
         setReviews(reviewsRes.data);
         setRelatedProducts(relatedRes.data);
+        
+        // Check if in wishlist
+        if (user) {
+          try {
+            const wishlistRes = await authAxios.get("/wishlist");
+            setInWishlist(wishlistRes.data.items.some(item => item.product_id === productId));
+          } catch (e) {}
+        }
       } catch (error) {
         console.error("Error fetching product:", error);
         toast.error("Failed to load product");
