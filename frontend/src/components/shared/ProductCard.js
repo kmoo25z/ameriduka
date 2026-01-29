@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Star, ShoppingCart } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { Button } from "../ui/button";
 
 const ProductCard = ({ product, onAddToCart, currency = "KES" }) => {
   const exchangeRates = { USD: 1, KES: 129.5, EUR: 0.92 };
