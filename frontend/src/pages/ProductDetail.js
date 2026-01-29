@@ -351,10 +351,34 @@ const ProductDetail = () => {
                   Add to Cart
                 </Button>
                 
-                <Button variant="outline" className="border-neutral-800" data-testid="wishlist-btn">
-                  <Heart className="h-5 w-5" />
+                <Button 
+                  variant="outline" 
+                  className={`border-neutral-800 ${inWishlist ? "bg-red-500/20 border-red-500/50 text-red-400" : ""}`} 
+                  onClick={handleWishlist}
+                  data-testid="wishlist-btn"
+                >
+                  <Heart className={`h-5 w-5 ${inWishlist ? "fill-red-400" : ""}`} />
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className={`border-neutral-800 ${compareList.includes(productId) ? "bg-primary/20 border-primary/50 text-primary" : ""}`}
+                  onClick={handleCompare}
+                  data-testid="compare-btn"
+                >
+                  <Scale className="h-5 w-5" />
                 </Button>
               </div>
+              
+              {/* Compare Banner */}
+              {compareList.length >= 2 && (
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 flex items-center justify-between">
+                  <span className="text-primary">{compareList.length} products in compare list</span>
+                  <Button size="sm" className="btn-primary" onClick={goToCompare}>
+                    Compare Now
+                  </Button>
+                </div>
+              )}
               
               {/* Features */}
               <div className="grid grid-cols-3 gap-4 pt-4 border-t border-neutral-800">
