@@ -1388,10 +1388,318 @@ Recommend 3 products from the available list that would be most relevant for thi
                 p["created_at"] = datetime.fromisoformat(p["created_at"])
         return {"recommendations": [ProductResponse(**p) for p in featured], "message": "Showing featured products"}
 
+# ============== WISHLIST ROUTES ==============
+@api_router.get("/wishlist", response_model=WishlistResponse)
+async def get_wishlist(user: Dict = Depends(get_current_user)):
+    wishlist = await db.wishlists.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    if not wishlist or not wishlist.get("items"):
+        return WishlistResponse(items=[], count=0)
+    
+    items_with_details = []
+    for product_id in wishlist["items"]:
+        product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+        if product:
+            if isinstance(product.get("created_at"), str):
+                product["created_at"] = datetime.fromisoformat(product["created_at"])
+            items_with_details.append(product)
+    
+    return WishlistResponse(items=items_with_details, count=len(items_with_details))
+
+@api_router.post("/wishlist/add")
+async def add_to_wishlist(item: WishlistItem, user: Dict = Depends(get_current_user)):
+    product = await db.products.find_one({"product_id": item.product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    await db.wishlists.update_one(
+        {"user_id": user["user_id"]},
+        {"$addToSet": {"items": item.product_id}},
+        upsert=True
+    )
+    return {"message": "Added to wishlist"}
+
+@api_router.delete("/wishlist/{product_id}")
+async def remove_from_wishlist(product_id: str, user: Dict = Depends(get_current_user)):
+    await db.wishlists.update_one(
+        {"user_id": user["user_id"]},
+        {"$pull": {"items": product_id}}
+    )
+    return {"message": "Removed from wishlist"}
+
+# ============== ADDRESS ROUTES ==============
+@api_router.get("/addresses", response_model=List[AddressResponse])
+async def get_addresses(user: Dict = Depends(get_current_user)):
+    addresses = await db.addresses.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(20)
+    return [AddressResponse(**a) for a in addresses]
+
+@api_router.post("/addresses", response_model=AddressResponse)
+async def create_address(address: AddressCreate, user: Dict = Depends(get_current_user)):
+    # If this is default, unset other defaults
+    if address.is_default:
+        await db.addresses.update_many(
+            {"user_id": user["user_id"]},
+            {"$set": {"is_default": False}}
+        )
+    
+    address_id = f"addr_{uuid.uuid4().hex[:12]}"
+    address_doc = {
+        "address_id": address_id,
+        "user_id": user["user_id"],
+        **address.model_dump()
+    }
+    await db.addresses.insert_one(address_doc)
+    return AddressResponse(**address_doc)
+
+@api_router.put("/addresses/{address_id}", response_model=AddressResponse)
+async def update_address(address_id: str, address: AddressCreate, user: Dict = Depends(get_current_user)):
+    existing = await db.addresses.find_one({"address_id": address_id, "user_id": user["user_id"]})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Address not found")
+    
+    if address.is_default:
+        await db.addresses.update_many(
+            {"user_id": user["user_id"]},
+            {"$set": {"is_default": False}}
+        )
+    
+    await db.addresses.update_one(
+        {"address_id": address_id},
+        {"$set": address.model_dump()}
+    )
+    updated = await db.addresses.find_one({"address_id": address_id}, {"_id": 0})
+    return AddressResponse(**updated)
+
+@api_router.delete("/addresses/{address_id}")
+async def delete_address(address_id: str, user: Dict = Depends(get_current_user)):
+    result = await db.addresses.delete_one({"address_id": address_id, "user_id": user["user_id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Address not found")
+    return {"message": "Address deleted"}
+
+# ============== SUPPORT TICKET ROUTES ==============
+@api_router.get("/tickets", response_model=List[TicketResponse])
+async def get_tickets(user: Dict = Depends(get_current_user)):
+    query = {"user_id": user["user_id"]}
+    if user.get("role") in [UserRole.ADMIN.value, UserRole.MANAGER.value, UserRole.SUPPORT.value]:
+        query = {}  # Support staff can see all tickets
+    
+    tickets = await db.tickets.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    for t in tickets:
+        if isinstance(t.get("created_at"), str):
+            t["created_at"] = datetime.fromisoformat(t["created_at"])
+        if isinstance(t.get("updated_at"), str):
+            t["updated_at"] = datetime.fromisoformat(t["updated_at"])
+    return [TicketResponse(**t) for t in tickets]
+
+@api_router.post("/tickets", response_model=TicketResponse)
+async def create_ticket(ticket: TicketCreate, user: Dict = Depends(get_current_user)):
+    ticket_id = f"ticket_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc).isoformat()
+    ticket_doc = {
+        "ticket_id": ticket_id,
+        "user_id": user["user_id"],
+        "subject": ticket.subject,
+        "message": ticket.message,
+        "order_id": ticket.order_id,
+        "category": ticket.category,
+        "status": "open",
+        "created_at": now,
+        "updated_at": now,
+        "messages": [{"from": "customer", "message": ticket.message, "timestamp": now}]
+    }
+    await db.tickets.insert_one(ticket_doc)
+    ticket_doc["created_at"] = datetime.fromisoformat(ticket_doc["created_at"])
+    ticket_doc["updated_at"] = datetime.fromisoformat(ticket_doc["updated_at"])
+    return TicketResponse(**ticket_doc)
+
+@api_router.post("/tickets/{ticket_id}/reply")
+async def reply_to_ticket(ticket_id: str, message: str = Query(...), user: Dict = Depends(get_current_user)):
+    ticket = await db.tickets.find_one({"ticket_id": ticket_id})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    # Check permission
+    if ticket["user_id"] != user["user_id"] and user.get("role") not in [UserRole.ADMIN.value, UserRole.MANAGER.value, UserRole.SUPPORT.value]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    is_support = user.get("role") in [UserRole.ADMIN.value, UserRole.MANAGER.value, UserRole.SUPPORT.value]
+    now = datetime.now(timezone.utc).isoformat()
+    
+    await db.tickets.update_one(
+        {"ticket_id": ticket_id},
+        {
+            "$push": {"messages": {"from": "support" if is_support else "customer", "message": message, "timestamp": now}},
+            "$set": {"updated_at": now, "status": "in_progress" if is_support else ticket["status"]}
+        }
+    )
+    return {"message": "Reply added"}
+
+@api_router.put("/tickets/{ticket_id}/status")
+async def update_ticket_status(ticket_id: str, status: str = Query(...), user: Dict = Depends(get_current_user)):
+    if user.get("role") not in [UserRole.ADMIN.value, UserRole.MANAGER.value, UserRole.SUPPORT.value]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    if status not in ["open", "in_progress", "resolved", "closed"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    
+    result = await db.tickets.update_one(
+        {"ticket_id": ticket_id},
+        {"$set": {"status": status, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return {"message": "Ticket status updated"}
+
+# ============== LOYALTY POINTS ROUTES ==============
+@api_router.get("/loyalty/balance")
+async def get_loyalty_balance(user: Dict = Depends(get_current_user)):
+    return {"points": user.get("loyalty_points", 0), "value_usd": user.get("loyalty_points", 0) * 0.01}
+
+@api_router.get("/loyalty/history")
+async def get_loyalty_history(user: Dict = Depends(get_current_user)):
+    history = await db.loyalty_transactions.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return history
+
+@api_router.post("/loyalty/redeem")
+async def redeem_loyalty_points(points: int = Query(..., ge=100), user: Dict = Depends(get_current_user)):
+    current_points = user.get("loyalty_points", 0)
+    if points > current_points:
+        raise HTTPException(status_code=400, detail="Insufficient points")
+    
+    # Deduct points
+    await db.users.update_one(
+        {"user_id": user["user_id"]},
+        {"$inc": {"loyalty_points": -points}}
+    )
+    
+    # Log transaction
+    await db.loyalty_transactions.insert_one({
+        "transaction_id": f"loyalty_{uuid.uuid4().hex[:12]}",
+        "user_id": user["user_id"],
+        "type": "redeem",
+        "points": -points,
+        "description": f"Redeemed {points} points for ${points * 0.01:.2f} discount",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": f"Redeemed {points} points", "discount_usd": points * 0.01}
+
+# ============== COMPARE PRODUCTS ==============
+@api_router.post("/products/compare")
+async def compare_products(product_ids: List[str]):
+    if len(product_ids) < 2 or len(product_ids) > 4:
+        raise HTTPException(status_code=400, detail="Compare 2-4 products")
+    
+    products = await db.products.find({"product_id": {"$in": product_ids}}, {"_id": 0}).to_list(4)
+    
+    if len(products) < 2:
+        raise HTTPException(status_code=404, detail="Products not found")
+    
+    for p in products:
+        if isinstance(p.get("created_at"), str):
+            p["created_at"] = datetime.fromisoformat(p["created_at"])
+    
+    # Extract all specification keys
+    all_specs = set()
+    for p in products:
+        all_specs.update(p.get("specifications", {}).keys())
+    
+    return {
+        "products": [ProductResponse(**p) for p in products],
+        "comparison_fields": list(all_specs)
+    }
+
+# ============== PDF INVOICE GENERATION ==============
+@api_router.get("/orders/{order_id}/invoice")
+async def get_invoice(order_id: str, user: Dict = Depends(get_current_user)):
+    from fastapi.responses import StreamingResponse
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from io import BytesIO
+    
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    if order["user_id"] != user["user_id"] and user.get("role") not in [UserRole.ADMIN.value, UserRole.MANAGER.value, UserRole.ACCOUNTANT.value]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Generate PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=24, spaceAfter=20, textColor=colors.HexColor('#6366f1'))
+    
+    elements = []
+    
+    # Header
+    elements.append(Paragraph("TechGalaxy", title_style))
+    elements.append(Paragraph("Invoice", styles['Heading2']))
+    elements.append(Spacer(1, 20))
+    
+    # Order Info
+    elements.append(Paragraph(f"<b>Order ID:</b> {order['order_id']}", styles['Normal']))
+    elements.append(Paragraph(f"<b>Date:</b> {order['created_at'][:10]}", styles['Normal']))
+    elements.append(Paragraph(f"<b>Status:</b> {order['status'].upper()}", styles['Normal']))
+    elements.append(Paragraph(f"<b>Payment:</b> {order['payment_status'].upper()}", styles['Normal']))
+    elements.append(Spacer(1, 20))
+    
+    # Shipping
+    elements.append(Paragraph("<b>Ship To:</b>", styles['Normal']))
+    elements.append(Paragraph(f"{order['shipping_address']}", styles['Normal']))
+    elements.append(Paragraph(f"{order['shipping_city']}, {order['shipping_country']}", styles['Normal']))
+    elements.append(Paragraph(f"Phone: {order['phone']}", styles['Normal']))
+    elements.append(Spacer(1, 20))
+    
+    # Items Table
+    table_data = [['Item', 'Qty', 'Price', 'Total']]
+    for item in order['items']:
+        table_data.append([
+            item['product_name'][:40],
+            str(item['quantity']),
+            f"${item['price_usd']:.2f}",
+            f"${item['price_usd'] * item['quantity']:.2f}"
+        ])
+    
+    table_data.append(['', '', 'Subtotal:', f"${order['subtotal_usd']:.2f}"])
+    table_data.append(['', '', 'Shipping:', f"${order['shipping_usd']:.2f}"])
+    table_data.append(['', '', 'Total:', f"${order['total_usd']:.2f}"])
+    table_data.append(['', '', f"{order['currency']}:", f"{order['total_local']:.2f}"])
+    
+    table = Table(table_data, colWidths=[250, 50, 80, 80])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#6366f1')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -5), 0.5, colors.grey),
+        ('FONTNAME', (2, -4), (-1, -1), 'Helvetica-Bold'),
+    ]))
+    elements.append(table)
+    elements.append(Spacer(1, 30))
+    
+    # Footer
+    elements.append(Paragraph("Thank you for shopping with TechGalaxy!", styles['Normal']))
+    elements.append(Paragraph("Contact: info@techgalaxy.ke | +254 700 000 000", styles['Normal']))
+    
+    doc.build(elements)
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=invoice_{order_id}.pdf"}
+    )
+
 # ============== HEALTH CHECK ==============
 @api_router.get("/")
 async def root():
-    return {"message": "TechGalaxy API", "version": "1.0.0"}
+    return {"message": "TechGalaxy API", "version": "2.0.0"}
 
 @api_router.get("/health")
 async def health():
